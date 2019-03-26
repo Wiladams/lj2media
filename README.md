@@ -11,3 +11,8 @@ Images
 Video
 
 Audio
+
+
+Things to look at
+http://www.mega-nerd.com/libsndfile/
+https://en.wikipedia.org/wiki/BMP_file_format

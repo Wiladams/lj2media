@@ -20,6 +20,17 @@ local WORD = ffi.typeof("uint16_t")
 local DWORD = ffi.typeof("uint32_t")
 local B = string.byte 
 
+local fourccdb = {
+    RIFF = str24cc('RIFF')
+    LIST = str24cc('LIST')
+    fmt = str24cc('fmt ')
+    INFO = str24cc('INFO')
+    data = str24cc('data')
+    hdrl = str24cc('hdrl')
+    movi = str24cc('movi')
+}
+
+
 local function BYTEVALUE(x, low, high)
     return tonumber(BVALUE(x, low, high))
 end
@@ -73,7 +84,7 @@ local function fourccToString(val)
 --]]
 end
 
-local function stringToFourcc(str)
+local function str24cc(str)
     if #str ~= 4 then return false, 'string length must be 4' end
 
     local arr = ffi.cast("const char *", str)
@@ -81,10 +92,23 @@ local function stringToFourcc(str)
 end
 
 
+local fourccdb = {
+    RIFF = str24cc('RIFF')
+    LIST = str24cc('LIST')
+    fmt = str24cc('fmt ')
+    INFO = str24cc('INFO')
+    data = str24cc('data')
+    hdrl = str24cc('hdrl')
+    movi = str24cc('movi')
+}
+
+
 return {
     MAKEFOURCC = MAKEFOURCC;
     MAKETWOCC = MAKETWOCC;
 
     fourccToString = fourccToString;
-    stringToFourcc = stringToFourcc;
+    stringToFourcc = str24cc;
+
+    fourccdb = fourccdb;
 }
