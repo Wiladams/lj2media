@@ -427,10 +427,12 @@ function binstream.readFixed(self)
 end
 
 function binstream.readF2Dot14(self)
-    return self:readInt16() / 16384;
+    return self:readUInt16() / 16384;
 end
 
-
+function binstream.readF2Dot30(self)
+    return self:readUInt32() / 0x4000000;
+end
 
 -- Convenient types named in the documentation
 binstream.readFWord = binstream.readInt16;
@@ -439,6 +441,7 @@ binstream.readOffset16 = binstream.readUInt16;
 binstream.readOffset32 = binstream.readUInt32;
 binstream.readWORD = binstream.readUInt16;
 binstream.readDWORD = binstream.readUInt32;
+binstream.readLONG = binstream.readInt32;
 binstream.readBYTE = binstream.readOctet;
 
 return binstream

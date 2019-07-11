@@ -16,12 +16,9 @@ local BVALUE = bitbang.BITSVALUE
 local MAKEFOURCC = fourcc.MAKEFOURCC
 local fourccToString = fourcc.fourccToString
 local str24cc = fourcc.stringToFourcc
+local fourccdb = fourcc.fourccdb
 
-local RIFF = str24cc('RIFF')
-local LIST = str24cc('LIST')
-local fmt = str24cc('fmt ')
-local INFO = str24cc('INFO')
-local data = str24cc('data')
+
 
 -- some values from mmreg.lua
 local  WAVE_FORMAT_EXTENSIBLE   = 0xFFFE; -- Microsoft
@@ -50,7 +47,40 @@ local function read_chunk_LIST(bs, res)
     res.Kind = bs:readDWORD()
     res.Data = bs:readBytes(res.Size-4)
 
-    if res.Kind == INFO then
+    if res.Kind == fourccdb.hdrl then
+        -- Aviriff.h
+        --https://docs.microsoft.com/en-us/previous-versions/ms779632(v%3dvs.85)
+        -- https://docs.microsoft.com/en-us/previous-versions/ms779636%28v%3dvs.85%29
+        --print("movi: ", res.Data, res.Size)
+        local ls, err = binstream(res.Data, res.Size, 0, true )
+        -- AVIMAINHEADER
+        res.fcc = ls:readDWORD();
+        res.cb = ls:readDWORD();
+        res.MicroSecPerFrame = ls:readDWORD();
+        res.MaxBytesPerSec = ls:readDWORD();
+        res.PaddingGranularity = ls:readDWORD();
+        res.Flags = ls:readDWORD();
+        res.TotalFrames = ls:readDWORD();
+        res.InitialFrames = ls:readDWORD();
+        res.Streams = ls:readDWORD();
+        res.SuggestedBufferSize = ls:readDWORD();
+        res.Width = ls:readDWORD();
+        res.Height = ls:readDWORD();
+        res.Reserved = ls:readBytes(16);
+        
+        -- Read remaining chunks
+        while not ls:EOF() do
+            local chunk = readChunkHeader(ls)
+            local data = ls:readBytes(chunk.Size)
+            if data then
+            res[fourccToString(chunk.Id)] = ffi.string(data)
+            end
+            ls:skipToEven()
+        end
+    elseif res.Kind == fourccdb.movi then
+        
+
+    elseif res.Kind == fourccdb.INFO then
         -- each of the chunks in here are strings of
         -- information.  So, read the chunks
         -- create a stream on the data
@@ -116,7 +146,7 @@ local function readChunk(bs, res)
 
     readChunkHeader(bs, res)
 
-    if res.Id == RIFF then
+    if res.Id == fourccdb.RIFF then
         res.Kind = bs:readDWORD()
     elseif res.Id == LIST then
         read_chunk_LIST(bs, res)
