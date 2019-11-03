@@ -20,22 +20,14 @@ local WORD = ffi.typeof("uint16_t")
 local DWORD = ffi.typeof("uint32_t")
 local B = string.byte 
 
-local fourccdb = {
-    RIFF = str24cc('RIFF')
-    LIST = str24cc('LIST')
-    fmt = str24cc('fmt ')
-    INFO = str24cc('INFO')
-    data = str24cc('data')
-    hdrl = str24cc('hdrl')
-    movi = str24cc('movi')
-}
+
 
 
 local function BYTEVALUE(x, low, high)
     return tonumber(BVALUE(x, low, high))
 end
 
-
+-- Very Windows and little-endian specific
 local function MAKEFOURCC(ch0, ch1, ch2, ch3)
     if type(ch0) == "string" then
         ch0=B(ch0)
@@ -66,22 +58,6 @@ local function fourccToString(val)
         BYTEVALUE(val, 24, 31)
     )
     return ffi.string(arr,4)
-
---[[
-    -- clunky method
-    local b0 = string.char(BYTEVALUE(val, 0, 7))
-    local b1 = string.char(BYTEVALUE(val, 8, 15))
-    local b2 = string.char(BYTEVALUE(val, 16, 23))
-    local b3 = string.char(BYTEVALUE(val, 24, 31))
-
-    local strTbl = {}
-    table.insert(strTbl, b0)
-    table.insert(strTbl, b1)
-    table.insert(strTbl, b2)
-    table.insert(strTbl, b3)
-
-    return table.concat(strTbl)
---]]
 end
 
 local function str24cc(str)
